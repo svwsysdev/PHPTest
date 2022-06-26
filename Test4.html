@@ -1,0 +1,107 @@
+<!--
+QUESTION 4:
+
+With javascript/jquery build a table listing using the data from the customers array (stored in data.js).
+The listing should show the customer's name and age.
+Above the listing add a textbox.
+Entering a value will search all names which contains the entered string.
+When you search for a number range (20-30) it will filter the results based off the customer's age.
+E.g When you search for 20-30 it must list everyone with ages in that range.
+Please make sure your code runs as effectively as it can.
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Test4</title>
+    <script type="text/javascript" src="data.js"></script>
+</head>
+
+<body style="padding:10px;">
+    <h1>Search Customers</h1>
+    <div class="data-container">
+        <input type="text" placeholder="Search" onkeyup="filter(this.value)" />
+        <table style="width:50%; ">
+            <th>
+                <tr>
+                    <th style="text-align:left; font-size: 18px; border-bottom: 1px solid rgb(109, 2, 2);">Name</th>
+                    <th style="text-align:left; font-size: 18px; border-bottom: 1px solid rgb(109, 2, 2);">Age</th>
+                </tr>
+
+                <tbody id="customerList">
+
+                </tbody>
+        </table>
+    </div>
+    <script type="text/javascript">
+        // Get the customer list table by id.
+        // Set age range array initially to null.
+        // Set search filter blank.
+        let customerList = document.getElementById('customerList');
+        let rangeArray = null;
+        let searchFilter = "";
+
+        // On document load call intialize function.
+        document.addEventListener("DOMContentLoaded", function () {
+            initialize();
+        });
+
+        // Initialize function calls the set age and get customer function and clears the list.
+        function initialize() {
+            customerList.innerHTML = "";
+            setAgeRange();
+            getCustomerData();
+        }
+
+        // Set age range function gets a range from string and adds it to array.
+        function setAgeRange() {
+            if (searchFilter !== "" && searchFilter.indexOf('-') > -1) {
+                let range = searchFilter.indexOf('-');
+                let rangelength = searchFilter.length - 1;
+                if (range > -1 && range < rangelength) {
+                    rangeArray = searchFilter.split('-').map(function (num) { return parseInt(num, 10) });
+                    rangeArray.sort(function (a, b) { return a - b; });
+                }
+            }
+        }
+
+        // Get customer function will loop through each customer and calls the populate table function.
+        function getCustomerData() {
+            customers.forEach(element => {
+                let age = calculateAge(element.birthdate);
+                if (element.name.toUpperCase().indexOf(searchFilter.toUpperCase()) > -1) {
+                    populateTable(element, age);
+                }
+                if (rangeArray !== null) {
+                    let maxAge = rangeArray[1];
+                    let minAge = rangeArray[0];
+                    if ((age <= maxAge && age >= minAge)) {
+                        populateTable(element, age);
+                    }
+                }
+            });
+        }
+
+        //  Populate table function adds the customer data to the table.
+        function populateTable(element, age) {
+            let newRow = customerList.insertRow();
+            newRow.insertCell().appendChild(document.createTextNode(element.name));
+            newRow.insertCell().appendChild(document.createTextNode(age));
+        }
+
+        // Calculates the age of the customer.
+        function calculateAge(dobString) {
+            let age = new Date() - new Date(dobString);
+            return Math.floor(age / 1000 / 60 / 60 / 24 / 365);
+        }
+
+        // Filter function is called on keyup for the search input.
+        function filter(filterString) {
+            searchFilter = filterString;
+            initialize();
+        }
+    </script>
+</body>
+
+</html>
